@@ -9,7 +9,7 @@ ListNode::ListNode()
     : prev( nullptr )
     , next( nullptr )
     , rand( nullptr )
-    , data( "" )
+    , data( "data" )
 { }
 
 ListRand::ListRand()
@@ -120,7 +120,7 @@ void ListRand::fillNode( ListNode* it, std::istream& stream )
 {
     std::ptrdiff_t rand = -1;
     
-    std::getline( stream, it->data );
+    stream >> it->data;
     stream >> rand;
     
     assert( rand < count );
