@@ -36,5 +36,5 @@ private:
     int count;
     
     void fillNode( ListNode* it, std::istream& stream );
-    
+    ListNode* findFirstNode() const;
 };

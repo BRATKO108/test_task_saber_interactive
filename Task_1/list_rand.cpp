@@ -4,6 +4,7 @@
 
 #include "include/list_rand.h"
 #include <cassert>
+#include <vector>
 
 ListNode::ListNode()
     : prev( nullptr )
@@ -25,13 +26,12 @@ ListRand::~ListRand()
 
 void ListRand::clear()
 {
-    if( head )
-    {
-        delete[] head;
-        head = nullptr;
-    }
+    auto first = findFirstNode();
+    head = nullptr;
     tail = nullptr;
     count = 0;
+    
+    delete[] first;
 }
 
 void ListRand::init( std::initializer_list<int> rands )
@@ -78,16 +78,32 @@ void ListRand::serialize( std::ostream& stream )
 {
     assert( stream.good() );
     stream << count << std::endl;
-    for( auto node = head; node != nullptr; node = node->next )
+    
+    auto first = findFirstNode();
+    
+    std::size_t currentDistance = 0;
+    std::vector<int> distances;
+    distances.resize( count, -1 );
+    for( auto cur = head; cur != nullptr; cur = cur->next )
     {
-        std::ptrdiff_t rand = -1;
-        if( node->rand != nullptr )
+        std::size_t index = cur - first;
+        
+        distances[index] = currentDistance;
+        ++currentDistance;
+        
+    }
+    
+    for( auto cur = head; cur != nullptr; cur = cur->next )
+    {
+        auto relativeDistance = -1;
+        if( cur->rand )
         {
-            rand = std::distance( head, node->rand );
+            auto randIndex = cur->rand - first;
+            relativeDistance = distances[randIndex];
         }
         
-        stream << node->data << std::endl;
-        stream << rand << std::endl;
+        stream << cur->data << std::endl;
+        stream << relativeDistance << std::endl;
     }
 }
 
@@ -127,6 +143,20 @@ void ListRand::fillNode( ListNode* it, std::istream& stream )
     
     if( rand != -1 )
     {
-        it->rand = ( head + rand );
+        it->rand = head + rand;
     }
+}
+
+ListNode* ListRand::findFirstNode() const
+{
+    auto first = head;
+    for( auto cur = head; cur != nullptr; cur = cur->next )
+    {
+        if( cur < first )
+        {
+            first = cur;
+        }
+    }
+    
+    return first;
 }
